@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.1">
+
+
+    <persistence-unit name="jpabook">
+        <class>jpabook.model.entity.Item</class>
+        <class>jpabook.model.entity.Member</class>
+        <class>jpabook.model.entity.Order</class>
+        <class>jpabook.model.entity.OrderItem</class>
+        <class>jpabook.model.entity.enums.OrderStatus</class>
+        <class>jpabook.model.entity.Delivery</class>
+        <properties>
+
+            <!-- 필수 속성 -->
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/~/jpabook"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
+
+            <!-- 옵션 -->
+            <property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.format_sql" value="true" />
+            <property name="hibernate.use_sql_comments" value="true" />
+            <property name="hibernate.id.new_generator_mappings" value="true" />
+            <property name="hibernate.hbm2ddl.auto" value="create" /> <!-- 스키마 자동 생성 기능 -->
+
+            <!-- 기본 매핑 이름 -->
+            <property name="hibernate.physical_naming_strategy" value="jpabook.config.PhysicalNamingStrategyStandardLegacy" />
+
+        </properties>
+    </persistence-unit>
+
+</persistence>
