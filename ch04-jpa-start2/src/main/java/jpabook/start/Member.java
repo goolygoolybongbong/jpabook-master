@@ -139,12 +139,4 @@ public class Member {
     public void setLocker(Locker locker) {
         this.locker = locker;
     }
-
-    public List<MemberProduct> getMemberProducts() {
-        return memberProducts;
-    }
-
-    public void setMemberProducts(List<MemberProduct> memberProducts) {
-        this.memberProducts = memberProducts;
-    }
 }

@@ -1,5 +1,7 @@
 package jpabook.start;
 
+import jpabook.start.family.*;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +43,7 @@ public class JpaMain {
             biDirection(em);
             productMember(em);
             findProductMember(em);
+            compositeDiscriminateKeyTest(em);
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -163,5 +166,80 @@ public class JpaMain {
         System.out.println("member = " + member.getUsername());
         System.out.println("product = " + product.getName());
         System.out.println("amount = " + memberProduct.getOrderAmount());
+    }
+
+    public static void compositeDiscriminateKeyTest(EntityManager em) {
+        // parent
+        String parentId = "testParentId";
+        String parentName = "testParentName";
+
+        Parent parent = new Parent();
+        parent.setId(parentId);
+        parent.setName(parentName);
+
+        //em.persist(parent);
+
+
+        // child
+        String childRawId = "testChildId";
+        String childName = "testChildName";
+
+        ChildId childId = new ChildId();
+        childId.setParentId(parent.getId());
+        childId.setId(childRawId);
+
+        Child child = new Child();
+        child.setChildId(childId);
+        child.setParent(parent);
+        child.setName(childName);
+
+        //em.persist(child);
+
+
+        // grandchild
+        String grandChildRawId = "testGrandChildId";
+        String grandChildName = "testGrandChildName";
+
+        GrandchildId grandchildId = new GrandchildId();
+        grandchildId.setChildId(childId);
+        grandchildId.setId(grandChildRawId);
+
+        Grandchild grandchild = new Grandchild();
+        grandchild.setId(grandchildId);
+        grandchild.setChild(child);
+        grandchild.setName(grandChildName);
+
+        em.persist(grandchild);
+
+
+        // find persisted entity
+        Parent foundParent = em.find(Parent.class, parentId);
+        Child foundChild = em.find(Child.class, childId);
+        Grandchild foundGrandchild = em.find(Grandchild.class, grandchildId);
+
+        // check persisted values
+        String tmp;
+        tmp = String.format("Found parent id : %s, name : %s", foundParent.getId(), foundParent.getName());
+        System.out.println(tmp);
+
+        tmp = String.format("Found Child id : %s, name : %s", foundChild.getChildId().getId(), foundChild.getName());
+        System.out.println(tmp);
+
+        tmp = String.format("Found grandchild id : %s, name : %s", foundGrandchild.getId().getId(), foundGrandchild.getName());
+        System.out.println(tmp);
+
+        // check object inheritance?
+        if(foundParent == foundChild.getParent()) {
+            System.out.println("foundParent == foundChild.getParent()");
+        } else {
+            System.out.println("foundParent != foundChild.getParent()");
+        }
+
+        if(foundChild == foundGrandchild.getChild()) {
+            System.out.println("foundChild == foundGrandchild.getChild()");
+        } else {
+            System.out.println("foundChild != foundGrandchild.getChild()");
+        }
+
     }
 }
