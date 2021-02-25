@@ -1,4 +1,4 @@
-package jpabook.model.entity;
+package jpabook;
 
 import java.io.Serializable;
 

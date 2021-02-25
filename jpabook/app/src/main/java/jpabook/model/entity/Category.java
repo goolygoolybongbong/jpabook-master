@@ -1,6 +1,6 @@
 package jpabook.model.entity;
 
-import jpabook.model.CategoryItem;
+import jpabook.model.entity.item.Item;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -14,6 +14,7 @@ import java.util.List;
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="CATEGORY_SEQ")
+    @Column(name = "CATEGORY_ID")
     private Long id;
 
     private String name;
@@ -22,7 +23,7 @@ public class Category {
     @JoinTable(name = "CATEGORY_ITEM",
             joinColumns = @JoinColumn(name = "CATEGORY_ID"),
             inverseJoinColumns = @JoinColumn(name = "ITEM_ID"))
-    private List<Item> items;
+    private List<Item> items = new ArrayList<>();
 
     // Category 계층 구조 : 한 부모 카테고리가 여러 자식 카테고리를 갖는다.
     // 자식 카테고리는 하나의 부모 카테고리를 갖고
@@ -37,10 +38,6 @@ public class Category {
     public void addChildCategory(Category child) {
         this.child.add(child);
         child.setParent(this);
-    }
-
-    public void addItem(Item item) {
-        this.items.add(item);
     }
 
     public Long getId() {
@@ -59,19 +56,27 @@ public class Category {
         this.parent = parent;
     }
 
-    public List<Item> getItems() {
-        return items;
-    }
-
-    public void setItems(List<Item> items) {
-        this.items = items;
-    }
-
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<Category> getChild() {
+        return child;
+    }
+
+    public void setChild(List<Category> child) {
+        this.child = child;
+    }
+
+    public List<Item> getItems() {
+        return items;
+    }
+
+    public void setItems(List<Item> items) {
+        this.items = items;
     }
 }

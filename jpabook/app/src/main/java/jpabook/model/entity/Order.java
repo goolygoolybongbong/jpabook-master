@@ -1,6 +1,7 @@
 package jpabook.model.entity;
 
 import jpabook.model.entity.enums.OrderStatus;
+import jpabook.model.entity.item.Item;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.List;
         name = "ORDERS_SEQ_GEN",
         sequenceName = "ORDERS_SEQ"
 )
-public class Order {
+public class Order extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ORDERS_SEQ_GEN")
     @Column(name = "ORDER_ID")
@@ -23,7 +24,7 @@ public class Order {
     @JoinColumn//(name = "MEMBER_ID")
     private Member member;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<OrderItem> orderItemList = new ArrayList<>();
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -32,7 +33,7 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "DELIVERY_ID", unique = true)
     private Delivery delivery;
 
@@ -43,6 +44,12 @@ public class Order {
     public void setDelivery(Delivery delivery) {
         this.delivery = delivery;
         this.delivery.setOrder(this);
+    }
+
+    public void addOrderItem(OrderItem orderItem) {
+        if(orderItemList.contains(orderItem)) return;
+        orderItemList.add(orderItem);
+        orderItem.setOrder(this);
     }
 
     public List<OrderItem> getOrderItemList() {

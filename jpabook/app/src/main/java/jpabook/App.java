@@ -5,6 +5,8 @@ package jpabook;
 
 import jpabook.model.entity.*;
 import jpabook.model.entity.enums.OrderStatus;
+import jpabook.model.entity.item.Album;
+import jpabook.model.entity.item.Item;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -24,6 +26,7 @@ public class App {
             transaction.begin();
             logic(em);
             objectExplorerText(em);
+            saveOrderChainTest(em);
             transaction.commit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -35,7 +38,7 @@ public class App {
     }
 
     public static void logic(EntityManager em) {
-        Item i = new Item();
+        Item i = new Album();
         i.setName("name");
         i.setPrice(100);
         em.persist(i);
@@ -45,7 +48,7 @@ public class App {
 
     public static void objectExplorerText(EntityManager em) {
         // given
-        Item itemPut = new Item();
+        Item itemPut = new Album();
         //itemPut.setId(1L);
         itemPut.setPrice(1000);
         itemPut.setName("testItem");
@@ -86,5 +89,19 @@ public class App {
         Order orderGetFromMemberGet = memberGet.getOrders().get(0);
         OrderItem orderItemGet = orderGet.getOrderItemList().get(0);
         Item itemGet = orderItemGet.getItem();
+    }
+
+    public static void saveOrderChainTest(EntityManager em) {
+        Delivery delivery = new Delivery();
+
+        OrderItem orderItem1 = new OrderItem();
+        OrderItem orderItem2 = new OrderItem();
+
+        Order order = new Order();
+        order.setDelivery(delivery);
+        order.addOrderItem(orderItem1);
+        order.addOrderItem(orderItem2);
+
+        em.persist(order);
     }
 }

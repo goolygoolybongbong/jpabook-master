@@ -1,5 +1,7 @@
 package jpabook.model.entity;
 
+import jpabook.model.entity.item.Item;
+
 import javax.persistence.*;
 
 @Entity
@@ -14,11 +16,11 @@ public class OrderItem {
     @Column(name = "ORDER_ITEM_ID")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn//(name = "ITEM_ID")
     private Item item;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn//(name = "ORDER_ID")
     private Order order;
 

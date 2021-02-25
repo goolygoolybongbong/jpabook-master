@@ -1,8 +1,7 @@
-package jpabook.model;
+package jpabook;
 
 import jpabook.model.entity.Category;
-import jpabook.model.entity.CategoryItemId;
-import jpabook.model.entity.Item;
+import jpabook.model.entity.item.Item;
 
 import javax.persistence.*;
 
