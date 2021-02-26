@@ -19,11 +19,11 @@ public class Category {
 
     private String name;
 
-    @ManyToMany
-    @JoinTable(name = "CATEGORY_ITEM",
-            joinColumns = @JoinColumn(name = "CATEGORY_ID"),
-            inverseJoinColumns = @JoinColumn(name = "ITEM_ID"))
-    private List<Item> items = new ArrayList<>();
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    @JoinTable(name = "CATEGORY_ITEM",
+//            joinColumns = @JoinColumn(name = "CATEGORY_ID"),
+//            inverseJoinColumns = @JoinColumn(name = "ITEM_ID"))
+    private List<CategoryItem> categoryItems = new ArrayList<>();
 
     // Category 계층 구조 : 한 부모 카테고리가 여러 자식 카테고리를 갖는다.
     // 자식 카테고리는 하나의 부모 카테고리를 갖고
@@ -72,11 +72,11 @@ public class Category {
         this.child = child;
     }
 
-    public List<Item> getItems() {
-        return items;
+    public List<CategoryItem> getCategoryItems() {
+        return categoryItems;
     }
 
-    public void setItems(List<Item> items) {
-        this.items = items;
+    public void setCategoryItems(List<CategoryItem> categoryItems) {
+        this.categoryItems = categoryItems;
     }
 }

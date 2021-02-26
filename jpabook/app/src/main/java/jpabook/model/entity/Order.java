@@ -24,7 +24,8 @@ public class Order extends BaseEntity {
     @JoinColumn//(name = "MEMBER_ID")
     private Member member;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)//, mappedBy = "order")
+    @JoinColumn(name = "ORDER_ID")
     private List<OrderItem> orderItemList = new ArrayList<>();
 
     @Temporal(TemporalType.TIMESTAMP)

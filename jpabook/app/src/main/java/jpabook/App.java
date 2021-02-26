@@ -27,6 +27,7 @@ public class App {
             logic(em);
             objectExplorerText(em);
             saveOrderChainTest(em);
+            categoryItemRealtionTest(em);
             transaction.commit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -96,6 +97,8 @@ public class App {
 
         OrderItem orderItem1 = new OrderItem();
         OrderItem orderItem2 = new OrderItem();
+        orderItem1.setDelivery(delivery);
+        orderItem2.setDelivery(delivery);
 
         Order order = new Order();
         order.setDelivery(delivery);
@@ -103,5 +106,22 @@ public class App {
         order.addOrderItem(orderItem2);
 
         em.persist(order);
+    }
+
+    public static void categoryItemRealtionTest(EntityManager em) {
+        Album item1 = new Album();
+        item1.setArtist("testArtist");
+        item1.setName("testAlbumName");
+        item1.setEtc("testEtc");
+        item1.setPrice(1000);
+
+        Category category = new Category();
+        category.setName("testCategory");
+
+        CategoryItem categoryItem = new CategoryItem();
+        categoryItem.setCategory(category);
+        categoryItem.setItem(item1);
+
+        em.persist(categoryItem);
     }
 }

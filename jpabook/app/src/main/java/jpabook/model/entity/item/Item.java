@@ -1,6 +1,7 @@
 package jpabook.model.entity.item;
 
 import jpabook.model.entity.Category;
+import jpabook.model.entity.CategoryItem;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -20,8 +21,8 @@ public abstract class Item {
     @Column(name = "ITEM_ID")
     private Long id;
 
-    @ManyToMany(mappedBy = "items")
-    private List<Category> categories = new ArrayList<>();
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<CategoryItem> categoryItems = new ArrayList<>();
 
     private String name;
     private int price;
@@ -59,11 +60,11 @@ public abstract class Item {
         this.stockQuantity = stockQuantity;
     }
 
-    public List<Category> getCategories() {
-        return categories;
+    public List<CategoryItem> getCategoryItems() {
+        return categoryItems;
     }
 
-    public void setCategories(List<Category> categories) {
-        this.categories = categories;
+    public void setCategoryItems(List<CategoryItem> categoryItems) {
+        this.categoryItems = categoryItems;
     }
 }

@@ -17,7 +17,7 @@ public class OrderItem {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn//(name = "ITEM_ID")
+    @JoinColumn(name = "ITEM_ID")
     private Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -74,5 +74,13 @@ public class OrderItem {
         }
         this.order = order;
         this.order.getOrderItemList().add(this);
+    }
+
+    public Delivery getDelivery() {
+        return delivery;
+    }
+
+    public void setDelivery(Delivery delivery) {
+        this.delivery = delivery;
     }
 }
