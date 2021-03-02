@@ -58,9 +58,11 @@ public class App {
         Member memberPut = new Member();
         //memberPut.setId(1L);
         memberPut.setName("test");
-        memberPut.setCity("testCity");
-        memberPut.setStreet("testStreet");
-        memberPut.setZipcode("testZipcode");
+        Address mAddress = new Address();
+        mAddress.setCity("testCity");
+        mAddress.setStreet("testStreet");
+        mAddress.setZipcode("testZipcode");
+        memberPut.setAddress(mAddress);
 
         Order orderPut = new Order();
         //orderPut.setId(1L);

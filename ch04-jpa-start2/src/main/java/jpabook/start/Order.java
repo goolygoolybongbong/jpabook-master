@@ -8,7 +8,7 @@ import javax.persistence.*;
     다 대 다 Member
  */
 
-@Entity
+@Entity(name = "ORDERS")
 public class Order {
 
     @Id @GeneratedValue

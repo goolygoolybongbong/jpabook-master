@@ -25,7 +25,8 @@ public class JpaMain {
             tx.begin(); //트랜잭션 시작
             //logic(em);  //비즈니스 로직
             //boardTest(em);
-            registerMember(em);
+            jqplSave(em);
+            //registerMember(em);
             tx.commit();//트랜잭션 커밋
 
         } catch (Exception e) {
@@ -39,11 +40,12 @@ public class JpaMain {
         tx = em.getTransaction();
         try {
             tx.begin();
-            graphExploration(em);
-            biDirection(em);
-            productMember(em);
-            findProductMember(em);
-            compositeDiscriminateKeyTest(em);
+            //graphExploration(em);
+//            biDirection(em);
+//            productMember(em);
+//            findProductMember(em);
+//            compositeDiscriminateKeyTest(em);
+            jqplQuery(em);
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -125,8 +127,8 @@ public class JpaMain {
         m2.setUsername("m2 name");
         m2.setTeam(t1);
 
-        /*t1.getMembers().add(m1);
-        t1.getMembers().add(m2);*/
+        t1.getMembers().add(m1);
+        t1.getMembers().add(m2);
 
         em.persist(m1);
         em.persist(m2);
@@ -241,5 +243,38 @@ public class JpaMain {
             System.out.println("foundChild != foundGrandchild.getChild()");
         }
 
+    }
+
+    public static void jqplSave(EntityManager em) {
+        Product p1 = new Product();
+        p1.setId("p1");
+        p1.setName("asdf");
+        p1.setStockAmount(99);
+        Product p2 = new Product();
+        p2.setId("p2");
+        p2.setName("fdsa");
+        p2.setStockAmount(1);
+
+        Order o1 = new Order();
+        o1.setProduct(p1);
+        o1.setOrderAmount(100);
+
+        Order o2 = new Order();
+        o2.setProduct(p2);
+        o2.setOrderAmount(2);
+
+        em.persist(p1);
+        em.persist(p2);
+        em.persist(o1);
+        em.persist(o2);
+    }
+
+    public static void jqplQuery(EntityManager em) {
+        //String query = "select o from ORDERS o where o.orderAmount > ALL(select p.stockAmount from Product p where o.product = p)";
+        String query = "select o from ORDERS o where o IN(select o from Product p where o.product = p)";
+        List orders = em.createQuery(query).getResultList();
+        for(Object o : orders) {
+            System.out.println(((Order)o).getOrderAmount());
+        }
     }
 }

@@ -12,6 +12,8 @@ public class Product {
 
     private String name;
 
+    private int stockAmount;
+
     public String getId() {
         return id;
     }
@@ -26,5 +28,13 @@ public class Product {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getStockAmount() {
+        return stockAmount;
+    }
+
+    public void setStockAmount(int stockAmount) {
+        this.stockAmount = stockAmount;
     }
 }
