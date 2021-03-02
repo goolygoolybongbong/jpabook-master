@@ -8,12 +8,15 @@
 
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
+    java
     application
+    idea
 }
 
 repositories {
     // Use JCenter for resolving dependencies.
     jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -31,6 +34,13 @@ dependencies {
 
     // h2
     implementation("com.h2database:h2:1.4.200")
+
+    // querydsl
+    implementation("com.querydsl:querydsl-jpa:4.4.0")
+    implementation("com.querydsl:querydsl-apt:4.4.0")
+    //implementation("org.slf4j:slf4j-log4j12:2.0.0-alpha1")
+    //annotationProcessor("com.querydsl:querydsl-apt:4.4.0")
+    //annotationProcessor("org.slf4j:slf4j-log4j12:2.0.0-alpha1")
 }
 
 application {
@@ -41,4 +51,21 @@ application {
 tasks.test {
     // Use junit platform for unit tests.
     useJUnitPlatform()
+}
+
+tasks.register("generateQueryDSL") {
+    typeOf<JavaCompile>()
+    setGroup("build")
+}
+
+tasks.compileJava {
+    dependsOn("generatedQueryDSL")
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir("src/main/java/generated")
+        }
+    }
 }

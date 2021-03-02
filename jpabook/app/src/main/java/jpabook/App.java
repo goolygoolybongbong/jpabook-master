@@ -3,6 +3,7 @@
  */
 package jpabook;
 
+import com.querydsl.jpa.impl.JPAQuery;
 import jpabook.model.entity.*;
 import jpabook.model.entity.enums.OrderStatus;
 import jpabook.model.entity.item.Album;
@@ -35,6 +36,22 @@ public class App {
         } finally {
             em.close();
         }
+
+        // ----------------------------- QueryDSL Study area ---------------------------------
+        em = entityManagerFactory.createEntityManager();
+        transaction = em.getTransaction();
+
+        try {
+            transaction.begin();
+
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            transaction.rollback();
+        } finally {
+            em.close();
+        }
+
         entityManagerFactory.close();
     }
 
@@ -125,5 +142,10 @@ public class App {
         categoryItem.setItem(item1);
 
         em.persist(categoryItem);
+    }
+
+    public static void queryDSL(EntityManager em) {
+        JPAQuery query = new JPAQuery(em);
+        //QMember =
     }
 }
