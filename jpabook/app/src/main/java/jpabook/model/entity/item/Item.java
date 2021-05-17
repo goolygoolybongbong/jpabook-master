@@ -1,6 +1,5 @@
 package jpabook.model.entity.item;
 
-import jpabook.model.entity.Category;
 import jpabook.model.entity.CategoryItem;
 
 import javax.persistence.*;
@@ -66,5 +65,16 @@ public abstract class Item {
 
     public void setCategoryItems(List<CategoryItem> categoryItems) {
         this.categoryItems = categoryItems;
+    }
+
+    public void addStock(int count) {
+        this.stockQuantity += count;
+    }
+
+    public void removeStock(int count) {
+        if(count > this.stockQuantity) {
+            throw new NotEnoughStockException("주문 수량이 재고보다 많습니다.");
+        }
+        this.stockQuantity -= count;
     }
 }

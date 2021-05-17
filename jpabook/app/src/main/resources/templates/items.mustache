@@ -1,0 +1,23 @@
+{{>layout/header}}
+<!--    목록 출력 영역    -->
+<table class="table table-horizontal table-bordered">
+    <thead class="thead-strong">
+    <tr>
+        <th>아이템번호</th>
+        <th>이름</th>
+        <th>가격</th>
+        <th>재고량</th>
+    </tr>
+    </thead>
+    <tbody id="tbody">
+    {{#items}}
+        <tr>
+            <td>{{id}}</td>
+            <td>{{name}}</td>
+            <td>{{price}}</td>
+            <td>{{stockQuantity}}</td>
+        </tr>
+    {{/items}}
+    </tbody>
+</table>
+{{>layout/footer}}

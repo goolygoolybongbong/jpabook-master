@@ -1,6 +1,8 @@
 package jpabook.model.entity;
 
 import jpabook.model.entity.item.Item;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -10,6 +12,8 @@ import javax.persistence.*;
         name = "ORDER_ITEM_SEQ_GEN",
         sequenceName = "ORDER_ITEM_SEQ"
 )
+@Getter
+@Setter
 public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ORDER_ITEM_SEQ_GEN")
@@ -24,49 +28,14 @@ public class OrderItem {
     @JoinColumn//(name = "ORDER_ID")
     private Order order;
 
-    @OneToOne
+    /*@OneToOne
     @JoinColumn
-    private Delivery delivery;
+    private Delivery delivery;*/
 
     private int orderPrice;
     private int count;
 
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public int getOrderPrice() {
-        return orderPrice;
-    }
-
-    public void setOrderPrice(int orderPrice) {
-        this.orderPrice = orderPrice;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
-
-    public Item getItem() {
-        return item;
-    }
-
-    public void setItem(Item item) {
-        this.item = item;
-    }
-
-    public Order getOrder() {
-        return order;
-    }
+    public OrderItem() {}
 
     public void setOrder(Order order) {
         if(this.order != null) {
@@ -76,11 +45,23 @@ public class OrderItem {
         this.order.getOrderItemList().add(this);
     }
 
-    public Delivery getDelivery() {
-        return delivery;
+    public static OrderItem createOrderItem(Item item, int orderPrice, int count) {
+        OrderItem orderItem = new OrderItem();
+        orderItem.setItem(item);
+        orderItem.setOrderPrice(orderPrice);
+        orderItem.setCount(count);
+
+        item.removeStock(count);
+        return orderItem;
     }
 
-    public void setDelivery(Delivery delivery) {
-        this.delivery = delivery;
+    // 주문 취소
+    public void cancel() {
+       this.item.addStock(this.count);
+    }
+
+    // 전체 가격 조회
+    public int getTotalPrice() {
+        return this.orderPrice * this.count;
     }
 }

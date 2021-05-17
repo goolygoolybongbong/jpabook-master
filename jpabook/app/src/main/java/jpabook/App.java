@@ -3,27 +3,41 @@
  */
 package jpabook;
 
+import com.querydsl.core.QueryModifiers;
+import com.querydsl.core.QueryResults;
+import com.querydsl.core.Tuple;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jpabook.generated.model.entity.QMember;
 import jpabook.model.entity.*;
 import jpabook.model.entity.enums.OrderStatus;
 import jpabook.model.entity.item.Album;
+import jpabook.model.entity.item.Book;
 import jpabook.model.entity.item.Item;
+import jpabook.generated.model.entity.item.QItem;
+import org.springframework.boot.Banner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+@SpringBootApplication
 public class App {
     public static void main(String[] args) {
+        SpringApplication app = new SpringApplication(App.class);
+        app.setBannerMode(Banner.Mode.OFF);
+        app.run(args);
 
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("jpabook");
+        /*EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("jpabook");
         EntityManager em = entityManagerFactory.createEntityManager();
 
         EntityTransaction transaction = em.getTransaction();
-
-        try {
+*/
+        /*try {
             transaction.begin();
             logic(em);
             objectExplorerText(em);
@@ -35,15 +49,19 @@ public class App {
             transaction.rollback();
         } finally {
             em.close();
-        }
+        }*/
 
         // ----------------------------- QueryDSL Study area ---------------------------------
-        em = entityManagerFactory.createEntityManager();
+        /*em = entityManagerFactory.createEntityManager();
         transaction = em.getTransaction();
 
         try {
             transaction.begin();
-
+            //queryDSL(em);
+            //queryDSLPaging(em);
+            queryDSLGrouping(em);
+            //queryDSLSubQuery(em);
+            //queryDSLMultipleSource(em);
             transaction.commit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -52,7 +70,7 @@ public class App {
             em.close();
         }
 
-        entityManagerFactory.close();
+        entityManagerFactory.close();*/
     }
 
     public static void logic(EntityManager em) {
@@ -111,7 +129,7 @@ public class App {
         Item itemGet = orderItemGet.getItem();
     }
 
-    public static void saveOrderChainTest(EntityManager em) {
+    /*public static void saveOrderChainTest(EntityManager em) {
         Delivery delivery = new Delivery();
 
         OrderItem orderItem1 = new OrderItem();
@@ -125,7 +143,7 @@ public class App {
         order.addOrderItem(orderItem2);
 
         em.persist(order);
-    }
+    }*/
 
     public static void categoryItemRealtionTest(EntityManager em) {
         Album item1 = new Album();
@@ -145,7 +163,126 @@ public class App {
     }
 
     public static void queryDSL(EntityManager em) {
-        JPAQuery query = new JPAQuery(em);
-        //QMember =
+        System.out.println("queryDSL 함수 진입 --------------------------------------");
+        JPAQuery<?> query = new JPAQuery<>(em);
+        QMember qMember = new QMember("m");
+        Member members = query.select(qMember).from(qMember).where(qMember.name.eq("회원1")).orderBy(qMember.name.desc()).fetchOne();
+
+        JPAQueryFactory jpaQueryFactory = new JPAQueryFactory(em);
+        QueryModifiers qm = new QueryModifiers(20L, 10L);
+        QueryResults<Member> m = jpaQueryFactory.selectFrom(qMember).where(qMember.name.eq("회원1")).fetchResults();
+
+        m.getTotal();
+        System.out.println("members 출력");
+        for (Member mem : m.getResults()) {
+            System.out.println(mem.getName() + " " + mem.getId());
+        }
+        System.out.println("queryDSL method END----------------------------------------");
+    }
+
+    private static void queryDSLPaging(EntityManager em) {
+        for (int i = 0; i < 1000; i++) {
+            Item b = new Book();
+            b.setName("book" + (i + 1));
+            b.setStockQuantity(i % 10);
+            b.setPrice((int) (Math.random() * 1000));
+            em.persist(b);
+        }
+        QItem item = new QItem("book");
+        ArrayList<List<Item>> items = new ArrayList<>();
+
+        long pageSize = 20L;
+        JPAQueryFactory jqf = new JPAQueryFactory(em);
+        for (long offset = 0L; ; offset += pageSize) {
+            QueryModifiers qm = new QueryModifiers(pageSize, offset);
+            QueryResults<Item> results = jqf.selectFrom(item)
+                    //.where(item.price.gt(100))
+                    //.orderBy(item.price.desc(), item.name.asc())
+                    .restrict(qm)
+                    .fetchResults();
+            if (results.getResults().size() == 0) break;
+            items.add(results.getResults());
+        }
+
+        int pageInfo = 1;
+        for (var lst : items) {
+            System.out.println(pageInfo + "번 페이지");
+            lst.forEach(item1 -> {
+                System.out.printf("%4d %10s %4d\n", item1.getId(), item1.getName(), item1.getPrice());
+            });
+            pageInfo++;
+        }
+    }
+
+    private static void queryDSLGrouping(EntityManager em) {
+        for (int i = 0; i < 1000; i++) {
+            Item b = new Book();
+            b.setName("book" + (i + 1));
+            b.setStockQuantity(i % 10);
+            b.setPrice((int) (Math.random() * 1000));
+            em.persist(b);
+        }
+        JPAQueryFactory jqf = new JPAQueryFactory(em);
+
+        QItem item = QItem.item;
+
+        List<Tuple> itemList = jqf.select(item.stockQuantity, item.stockQuantity.count(), item.price.avg()).from(item)
+                .where(item.price.gt(500))
+                .groupBy(item.stockQuantity)
+                .having(item.stockQuantity.gt(5))
+                .fetch();
+
+        for(var i : itemList) {
+            System.out.printf("%s\n", i.toString());
+            System.out.println(i.get(item.stockQuantity));
+            System.out.println(i.get(1, Integer.class));
+            System.out.println(i.get(2, Double.class));
+        }
+    }
+
+    private static void queryDSLSubQuery(EntityManager em) {
+        for (int i = 0; i < 1000; i++) {
+            Item b = new Book();
+            b.setName("book" + (i + 1));
+            b.setStockQuantity(i % 10);
+            b.setPrice((int) (Math.random() * 1000));
+            em.persist(b);
+        }
+
+        QItem item = QItem.item;
+        QItem itemSub = new QItem("itemSub");
+
+        JPAQueryFactory jqf = new JPAQueryFactory(em);
+        List<Item> itemList = jqf.selectFrom(item)
+                .where(item.price.eq(
+                        JPAExpressions.select(itemSub.price.max()).from(itemSub)))
+                .fetch();
+
+
+        for(var i : itemList) {
+            System.out.println(i.getPrice());
+        }
+    }
+
+    private static void queryDSLMultipleSource(EntityManager em) {
+        Item b = new Book();
+        b.setName("book1");
+        b.setStockQuantity(1);
+        b.setPrice(100);
+        em.persist(b);
+
+        Member m = new Member();
+        m.setName("aa");
+        m.setAddress(new Address());
+        m.getAddress().setCity("cc");
+        m.getAddress().setStreet("ss");
+        m.getAddress().setZipcode("zz");
+        em.persist(m);
+
+        JPAQuery<Void> query = new JPAQuery<>(em);
+        List<Member> list = query.select(QMember.member).from(QMember.member, QItem.item).fetch();
+        for(var p : list) {
+            System.out.println(p.getName());
+        }
     }
 }

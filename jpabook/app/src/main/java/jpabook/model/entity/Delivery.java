@@ -23,6 +23,10 @@ public class Delivery {
     @Enumerated(EnumType.STRING)
     private DeliveryStatus status;
 
+    public Delivery() {
+
+    }
+
     public Long getId() {
         return id;
     }
@@ -48,6 +52,10 @@ public class Delivery {
     }
 
     public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public Delivery(Address address) {
         this.address = address;
     }
 }

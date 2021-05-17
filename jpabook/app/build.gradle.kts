@@ -6,11 +6,16 @@
  * User Manual available at https://docs.gradle.org/6.7/userguide/building_java_projects.html
  */
 
+//val generateQueryDSLObject = this.artifacts.javaClass
+
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     java
     application
-    idea
+    `java-library`
+
+    id("org.springframework.boot") version "2.4.4" apply true
+    id("io.spring.dependency-management") version "1.0.11.RELEASE" apply true
 }
 
 repositories {
@@ -21,26 +26,49 @@ repositories {
 
 dependencies {
     // Use JUnit Jupiter API for testing.
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.2")
+    //testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.2")
 
     // Use JUnit Jupiter Engine for testing.
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    //testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 
     // This dependency is used by the application.
-    implementation("com.google.guava:guava:29.0-jre")
+    implementation("com.google.guava:guava:30.1.1-jre")
 
     // jpa
-    implementation("org.hibernate:hibernate-entitymanager:5.4.27.Final")
+    //implementation("org.hibernate:hibernate-entitymanager:5.4.27.Final")
 
     // h2
     implementation("com.h2database:h2:1.4.200")
 
     // querydsl
-    implementation("com.querydsl:querydsl-jpa:4.4.0")
-    implementation("com.querydsl:querydsl-apt:4.4.0")
-    //implementation("org.slf4j:slf4j-log4j12:2.0.0-alpha1")
+    implementation("com.querydsl:querydsl-jpa")
+    //implementation("com.querydsl:querydsl-apt:4.4.0")
+    annotationProcessor("com.querydsl:querydsl-apt")
+    annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+    annotationProcessor("jakarta.annotation:jakarta.annotation-api")
+    //implementation("org.slf4j:slf4j-log4j12:1.7.30")
+    //implementation("javax.annotation:javax.annotation-api:1.3.2")
     //annotationProcessor("com.querydsl:querydsl-apt:4.4.0")
     //annotationProcessor("org.slf4j:slf4j-log4j12:2.0.0-alpha1")
+
+    // spring-boot
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-json")
+    compileOnly("org.springframework.boot:spring-boot-starter-tomcat")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+    // mustache
+    implementation("org.springframework.boot:spring-boot-starter-mustache")
+
+    //testImplementation(platform("org.junit:junit-bom:5.7.1"))
+    //testImplementation("org.junit.jupiter:junit-jupiter")
+
+    // lombok
+    implementation("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+    testImplementation("org.projectlombok:lombok")
+    testAnnotationProcessor("org.projectlombok:lombok")
 }
 
 application {
@@ -53,19 +81,76 @@ tasks.test {
     useJUnitPlatform()
 }
 
-tasks.register("generateQueryDSL") {
-    typeOf<JavaCompile>()
-    setGroup("build")
+configurations {
+    named("compileOnly") {
+        extendsFrom(annotationProcessor.get())
+        attributes {
+
+        }
+    }
+    /*tasks.get("generateQueryDSL").configure(compileClasspath)
+    create("generatedQueryDSL") {
+    }*/
 }
 
-tasks.compileJava {
-    dependsOn("generatedQueryDSL")
+
+
+
+
+/*
+tasks.create<JavaCompile>("generateQueryDSL") {
+    //setGroup("build")
+    //setSource(sourceSets.get("main").java)
+    //library =
+    
+    println("!!!!!!!!!!!!!!!!!!!!")
+    classpath = sourceSets.get("main").java
+    group = "build"
+    source = sourceSets.get("main").java
+    options.setGeneratedSourceOutputDirectory(File("src/main/generated"))
+
+    options.setAnnotationProcessorPath(FileCollection("src/main/generated"))
+    println(options.annotationProcessorPath)
+    //options.compilerArgs = mutableListOf("-proc:only", "-processor", "com.querydsl.apt.jpa.JPAAnnotationProcessor")
+
+    destinationDir = sourceSets.get("main").java.srcDirs.first()
 }
+
+tasks.named<JavaCompile>("compileJava") {
+    dependsOn("generateQueryDSL")
+    source = sourceSets.get("main").java
+    sourceSets.
+}*/
+
 
 sourceSets {
-    main {
+    named("main") {
         java {
-            srcDir("src/main/java/generated")
+            srcDirs("src/main/java")
+            srcDirs("src/main/java/jpabook/generated")
         }
+    }
+}
+
+tasks.create<JavaCompile>("asdf") {
+    this.source = sourceSets.getByName("main").java
+    this.classpath = sourceSets.getByName("main").compileClasspath
+    this.options.annotationProcessorPath = classpath//.filter { it.endsWith("querydsl-apt-4.4.0.jar") }
+    this.options.compilerArgs.addAll(listOf("-proc:only", "-processor", "com.querydsl.apt.jpa.JPAAnnotationProcessor"))
+    //this.destinationDir = sourceSets.getByName("main").java.srcDirs.elementAt(1)
+    this.destinationDirectory.set(sourceSets.getByName("main").java.srcDirs.elementAt(1))
+    doFirst {
+        println(project.getTasksByName("main", true).toString())
+        sourceSets.getByName("main").compileClasspath.forEach {
+            println(it)
+        }
+        println(sourceSets.getByName("main").java.srcDirs.elementAt(0))
+        //println(sourceSets.getByName("main").java.srcDirs.elementAt(1))
+    }
+}
+
+tasks.create("aa") {
+    doFirst {
+        println(sourceSets.getByName("main").java.srcDirs)
     }
 }
